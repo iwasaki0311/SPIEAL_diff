@@ -1,0 +1,104 @@
+<!--SMP_DYNAMIC_PAGE DISPLAY_ERRORS=ON NAME=spiral_viewer.php-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPIRAL 設定ビューアー & 差分比較ツール</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+</head>
+<link rel="stylesheet" href="./css/style.css" type="text/css" />
+<body>
+  <div id="header">
+    <h1>SPIRAL 設定ビューアー</h1>
+    <div class="load-area">
+      <span class="env-label env-a">マスタ</span>
+      <label class="load-btn" id="loadBtnA">
+        <span class="icon">&#128193;</span> <span id="loadLabelA">フォルダを選択</span>
+        <input type="file" webkitdirectory style="display:none" id="inputA">
+      </label>
+    </div>
+    <div class="load-area" id="loadAreaB">
+      <span class="env-label env-b">チェック対象</span>
+      <label class="load-btn" id="loadBtnB">
+        <span class="icon">&#128193;</span> <span id="loadLabelB">フォルダを選択（比較時のみ）</span>
+        <input type="file" webkitdirectory style="display:none" id="inputB">
+      </label>
+    </div>
+    <div style="display:flex;align-items:center;gap:4px">
+      <label style="font-size:12px;color:var(--text-light)">文字コード:</label>
+      <select id="encodingSelect"
+        style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px;outline:none;">
+        <option value="auto">自動判定</option>
+        <option value="euc-jp" selected>EUC-JP</option>
+        <option value="utf-8">UTF-8</option>
+        <option value="shift_jis">Shift_JIS</option>
+      </select>
+    </div>
+    <div id="headerCompareInfo" class="header-compare-info hidden"></div>
+    <div id="compTypeToggle" class="comp-type-toggle">
+      <button id="compTypeTwoEnv" class="active" onclick="setComparisonType('two-env')">２環境比較</button>
+      <button id="compTypeSingleEnv" onclick="setComparisonType('single-env')">同一環境内比較</button>
+    </div>
+    <div class="mode-toggle" id="modeToggle">
+      <button id="modeView" class="active" onclick="setMode('view')">設定一覧</button>
+      <button id="modeCompare" onclick="setMode('compare')">差分比較</button>
+    </div>
+    <!-- <div id="compareOrderOptions" class="compare-order-options hidden" aria-label="配列・リストの比較方法">
+      <span class="compare-order-label">リスト順序</span>
+      <label class="compare-order-choice"><input type="radio" name="compareOrderMode" value="ignore"
+          onchange="setCompareOrderMode(this.value)"> 無視（同一IDで対応）</label>
+      <label class="compare-order-choice"><input type="radio" name="compareOrderMode" value="strict"
+          onchange="setCompareOrderMode(this.value)"> 厳密（並び順で比較・対応線）</label>
+    </div> -->
+    <div id="search-box">
+      <span
+        style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;z-index:2;opacity:0.6">&#128269;</span>
+      <input type="text" id="searchInput" placeholder="設定を検索..." oninput="onSearch(this.value)">
+    </div>
+  </div>
+  <div id="main">
+    <div id="sidebarWrapper" class="sidebar-wrapper">
+      <div id="sidebar"></div>
+      <button type="button" id="sidebarToggle" class="sidebar-toggle" onclick="toggleSidebar()" title="メニューを閉じる"
+        aria-label="メニューを閉じる">
+        <span class="icon-collapse">&#9664;</span>
+        <span class="icon-expand">&#9654;</span>
+      </button>
+    </div>
+    <div id="content">
+      <div class="welcome">
+        <div class="big-icon">&#9881;&#65039;</div>
+        <h2>SPIRAL 設定ビューアー</h2>
+        <p><strong>一覧表示のみ</strong>：環境Aのフォルダを選択するだけで設定を確認できます。<br>
+          <strong>差分比較</strong>：環境Bも読み込み、「差分比較」をクリックすると比較できます。
+        </p>
+      </div>
+    </div>
+  </div>
+  <div id="loadingOverlay" class="loading-overlay hidden" aria-busy="true" aria-live="polite">
+    <div class="loading-overlay-wrap">
+      <span class="loading-bounceball" aria-hidden="true"><svg height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 18C6 14.7 8.7 12 12 12H24L30 18H52C55.3 18 58 20.7 58 24V26H6V18Z" fill="#F4B400"/>
+        <path d="M6 24H58V48C58 51.3 55.3 54 52 54H12C8.7 54 6 51.3 6 48V24Z" fill="#FFD54F"/>
+        <path d="M6 24H58" stroke="#E0A800" stroke-width="2"/>
+      </svg></span>
+      <span class="loading-overlay-text">loading...</span>
+    </div>
+  </div>
+</body>
+<script src="./js/spiralConfig.js" type="text/javascript"></script>
+<script src="./js/spiralState.js" type="text/javascript"></script>
+<script src="./js/spiralUtilsEscape.js" type="text/javascript"></script>
+<script src="./js/spiralFieldMap.js" type="text/javascript"></script>
+<script src="./js/spiralLabelFormat.js" type="text/javascript"></script>
+<script src="./js/spiralParser.js" type="text/javascript"></script>
+<script src="./js/spiralCompareOptions.js" type="text/javascript"></script>
+<script src="./js/spiralDiff.js" type="text/javascript"></script>
+<script src="./js/spiralRender.js" type="text/javascript"></script>
+<script src="./js/spiralInit.js" type="text/javascript"></script>
+</html>
